@@ -15,6 +15,12 @@ type PreviewContent = {
   structuredData?: any;
 };
 
+type ContentstackConfig = {
+  apiKey: string;
+  deliveryToken: string;
+  environment: string;
+};
+
 const PREVIEW_ENDPOINT = 'https://launchdarkly-contentstack-integrati-flax.vercel.app/api/flagPreview';
 
 export default function App() {
@@ -25,6 +31,12 @@ export default function App() {
       environment: 'preview'
     }, null, 2)
   );
+  const [useLaunchDarklyConfig, setUseLaunchDarklyConfig] = useState(false);
+  const [contentstackConfig, setContentstackConfig] = useState<ContentstackConfig>({
+    apiKey: '',
+    deliveryToken: '',
+    environment: 'preview'
+  });
   const [preview, setPreview] = useState<PreviewContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,10 +49,22 @@ export default function App() {
       
       const variation = JSON.parse(variationJson);
 
+      // Prepare request payload
+      const payload: any = {
+        variation: { value: variation }
+      };
+
+      // Add LaunchDarkly configuration if enabled
+      if (useLaunchDarklyConfig && contentstackConfig.apiKey && contentstackConfig.deliveryToken) {
+        payload.config = {
+          contentstack: contentstackConfig
+        };
+      }
+
       const res = await fetch(PREVIEW_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variation: { value: variation } })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -63,6 +87,65 @@ export default function App() {
         <h1 className="text-3xl font-bold mb-6 text-gray-800">
           🚀 LaunchDarkly + Contentstack Flag Preview Demo
         </h1>
+        
+        {/* Configuration Mode Toggle */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <h2 className="text-lg font-semibold mb-3 text-gray-700">Configuration Mode</h2>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="configMode"
+                checked={!useLaunchDarklyConfig}
+                onChange={() => setUseLaunchDarklyConfig(false)}
+                className="mr-2"
+              />
+              <span className="text-sm">Fallback Mode (Environment Variables)</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="configMode"
+                checked={useLaunchDarklyConfig}
+                onChange={() => setUseLaunchDarklyConfig(true)}
+                className="mr-2"
+              />
+              <span className="text-sm">LaunchDarkly Config Mode</span>
+            </label>
+          </div>
+          
+          {useLaunchDarklyConfig && (
+            <div className="mt-4 p-3 bg-yellow-50 rounded border">
+              <h3 className="font-semibold text-sm mb-2">LaunchDarkly Configuration</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  placeholder="API Key"
+                  value={contentstackConfig.apiKey}
+                  onChange={(e) => setContentstackConfig(prev => ({ ...prev, apiKey: e.target.value }))}
+                  className="px-2 py-1 text-sm border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Delivery Token"
+                  value={contentstackConfig.deliveryToken}
+                  onChange={(e) => setContentstackConfig(prev => ({ ...prev, deliveryToken: e.target.value }))}
+                  className="px-2 py-1 text-sm border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Environment"
+                  value={contentstackConfig.environment}
+                  onChange={(e) => setContentstackConfig(prev => ({ ...prev, environment: e.target.value }))}
+                  className="px-2 py-1 text-sm border rounded"
+                />
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                This simulates how LaunchDarkly would pass configuration to your API
+              </p>
+            </div>
+          )}
+        </div>
         
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-3 text-gray-700">CMS Reference</h2>

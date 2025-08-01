@@ -18,27 +18,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validate environment variables
-    const apiKey = process.env.CONTENTSTACK_API_KEY;
-    const deliveryToken = process.env.CONTENTSTACK_DELIVERY_TOKEN;
-    const environment = process.env.CONTENTSTACK_ENVIRONMENT;
-
-    if (!apiKey || !deliveryToken || !environment) {
-      console.error('❌ Missing required environment variables');
-      return res.status(500).json({ 
-        error: 'Configuration Error',
-        detail: 'Missing Contentstack environment variables. Please check CONTENTSTACK_API_KEY, CONTENTSTACK_DELIVERY_TOKEN, and CONTENTSTACK_ENVIRONMENT.'
-      });
-    }
-
-    const config = {
-      apiKey,
-      deliveryToken,
-      environment
-    };
-
-    // Extract variation from request body
+    // Extract variation and config from request body
     const variation = req.body?.variation?.value;
+    const contentstackConfig = req.body?.config?.contentstack;
 
     if (!variation) {
       console.error('❌ Missing variation in request body');
@@ -73,6 +55,49 @@ export default async function handler(req, res) {
       });
     }
 
+    // Determine Contentstack configuration
+    let config;
+    
+    if (contentstackConfig) {
+      // Use LaunchDarkly-provided configuration
+      if (!contentstackConfig.apiKey || !contentstackConfig.deliveryToken || !contentstackConfig.environment) {
+        console.error('❌ Invalid Contentstack configuration from LaunchDarkly');
+        return res.status(400).json({ 
+          error: 'Configuration Error',
+          detail: 'Missing required Contentstack configuration (apiKey, deliveryToken, environment)'
+        });
+      }
+      
+      config = {
+        apiKey: contentstackConfig.apiKey,
+        deliveryToken: contentstackConfig.deliveryToken,
+        environment: contentstackConfig.environment
+      };
+      
+      console.log('🔧 Using LaunchDarkly-provided Contentstack configuration');
+    } else {
+      // Fallback to environment variables for testing
+      const apiKey = process.env.CONTENTSTACK_API_KEY;
+      const deliveryToken = process.env.CONTENTSTACK_DELIVERY_TOKEN;
+      const environment = process.env.CONTENTSTACK_ENVIRONMENT;
+
+      if (!apiKey || !deliveryToken || !environment) {
+        console.error('❌ Missing Contentstack configuration');
+        return res.status(500).json({ 
+          error: 'Configuration Error',
+          detail: 'Missing Contentstack configuration. Either provide config in request body or set environment variables.'
+        });
+      }
+
+      config = {
+        apiKey,
+        deliveryToken,
+        environment
+      };
+      
+      console.log('🔧 Using environment variables for Contentstack configuration (testing mode)');
+    }
+
     console.log(`🚀 Processing flag preview request for entry: ${variation.entryId}`);
 
     // Fetch content from Contentstack
@@ -103,7 +128,7 @@ export default async function handler(req, res) {
 
     if (error.message.includes('HTTP 401') || error.message.includes('HTTP 403')) {
       return res.status(401).json({
-        error: 'Authentication Failed',
+        error: 'Authentication Error',
         detail: 'Invalid Contentstack credentials'
       });
     }
