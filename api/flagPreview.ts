@@ -143,6 +143,7 @@ async function fetchContentstackContent(variation: CMSReference, config: Content
   } else {
     // Fetch entry
     let contentType = variation.contentType;
+    let apiContentType: string;
     
     // Auto-discover content type if not provided
     if (!contentType) {
@@ -150,11 +151,14 @@ async function fetchContentstackContent(variation: CMSReference, config: Content
       if (!discoveredType) {
         throw new Error('Unable to resolve content type for entry ID');
       }
-      // Use the discovered type as a string for the API call
-      contentType = discoveredType;
+      // Use the discovered type for the API call
+      apiContentType = discoveredType;
+    } else {
+      // Use the provided content type for the API call
+      apiContentType = contentType;
     }
 
-    const entryUrl = `${baseUrl}/content_types/${contentType}/entries/${variation.entryId}?environment=${variation.environment}`;
+    const entryUrl = `${baseUrl}/content_types/${apiContentType}/entries/${variation.entryId}?environment=${variation.environment}`;
     const response = await fetch(entryUrl, { headers });
     
     if (!response.ok) {
