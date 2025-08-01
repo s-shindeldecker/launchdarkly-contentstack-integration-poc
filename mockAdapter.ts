@@ -37,5 +37,46 @@ export const MockAdapter: CMSAdapter = {
       title: 'Sample Content Title',
       thumbnail: 'https://via.placeholder.com/200x100/0070f3/ffffff?text=Thumbnail'
     };
+  },
+
+  async fetchAsset(ref: CMSReference): Promise<PreviewContent> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return {
+      title: 'Sample Asset',
+      summary: 'This is a sample asset for testing purposes.',
+      imageUrl: 'https://via.placeholder.com/400x200/0070f3/ffffff?text=Sample+Asset',
+      fileUrl: 'https://via.placeholder.com/400x200/0070f3/ffffff?text=Sample+Asset',
+      fileName: 'sample-asset.jpg',
+      fileSize: 1024000,
+      mimeType: 'image/jpeg',
+      assetType: 'image',
+      dimensions: {
+        width: 400,
+        height: 200
+      },
+      structuredData: {
+        title: 'Sample Asset',
+        filename: 'sample-asset.jpg',
+        url: 'https://via.placeholder.com/400x200/0070f3/ffffff?text=Sample+Asset',
+        file_size: 1024000,
+        content_type: 'image/jpeg',
+        dimension: {
+          width: 400,
+          height: 200
+        }
+      }
+    };
+  },
+
+  async getAssetMetadata(ref: CMSReference) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return {
+      title: 'Sample Asset',
+      thumbnail: 'https://via.placeholder.com/200x100/0070f3/ffffff?text=Asset+Thumbnail',
+      fileUrl: 'https://via.placeholder.com/400x200/0070f3/ffffff?text=Sample+Asset'
+    };
   }
 }; 

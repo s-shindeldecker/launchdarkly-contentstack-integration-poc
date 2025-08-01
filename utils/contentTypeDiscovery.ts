@@ -7,7 +7,7 @@
  * 3. Return the UID of the content type if successful, or null if no match is found
  */
 
-async function findContentTypeForEntry(entryId: string, {
+export async function findContentTypeForEntry(entryId: string, {
   apiKey,
   deliveryToken,
   environment
@@ -84,7 +84,7 @@ async function findContentTypeForEntry(entryId: string, {
 /**
  * Enhanced version that also returns additional metadata about the content type
  */
-async function findContentTypeWithMetadata(entryId: string, {
+export async function findContentTypeWithMetadata(entryId: string, {
   apiKey,
   deliveryToken,
   environment
@@ -142,7 +142,7 @@ async function findContentTypeWithMetadata(entryId: string, {
 /**
  * Batch discovery for multiple entry IDs
  */
-async function findContentTypesForEntries(entryIds: string[], {
+export async function findContentTypesForEntries(entryIds: string[], {
   apiKey,
   deliveryToken,
   environment
@@ -172,10 +172,4 @@ async function findContentTypesForEntries(entryIds: string[], {
   });
   
   return results;
-}
-
-module.exports = {
-  findContentTypeForEntry,
-  findContentTypeWithMetadata,
-  findContentTypesForEntries
-}; 
+} 

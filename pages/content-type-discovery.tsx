@@ -1,27 +1,23 @@
-import React, { useEffect, useState } from 'react';
-// @ts-ignore
-import * as contentstack from 'contentstack';
+import { useState } from 'react';
+import contentstack from 'contentstack';
 
 export default function ContentTypeDiscovery() {
-  const [contentTypes, setContentTypes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<any>({});
-
-  useEffect(() => {
-    discoverContentTypes();
-  }, []);
+  const [testResults, setTestResults] = useState<Record<string, string>>({});
 
   const discoverContentTypes = async () => {
+    setLoading(true);
+    setError(null);
+    setTestResults({});
+
     try {
-      setLoading(true);
-      
       const apiKey = process.env.NEXT_PUBLIC_CONTENTSTACK_API_KEY;
       const deliveryToken = process.env.NEXT_PUBLIC_CONTENTSTACK_DELIVERY_TOKEN;
       const environment = process.env.NEXT_PUBLIC_CONTENTSTACK_ENVIRONMENT || 'staging';
 
       if (!apiKey || !deliveryToken) {
-        throw new Error('Missing Contentstack credentials');
+        throw new Error('Missing Contentstack environment variables. Please check NEXT_PUBLIC_CONTENTSTACK_API_KEY and NEXT_PUBLIC_CONTENTSTACK_DELIVERY_TOKEN.');
       }
 
       const stack = contentstack.Stack({
@@ -30,49 +26,55 @@ export default function ContentTypeDiscovery() {
         environment: environment
       });
 
-      // Test common content type names
-      const commonContentTypes = [
-        'blog_post', 'article', 'page', 'post', 'content', 
-        'entry', 'item', 'document', 'story', 'news', 'product'
+      // Common content type names to test
+      const commonTypes = [
+        'page',
+        'article',
+        'blog_post',
+        'post',
+        'content',
+        'entry',
+        'item',
+        'product',
+        'service',
+        'about',
+        'home',
+        'landing_page',
+        'banner',
+        'hero',
+        'section',
+        'component',
+        'block',
+        'widget',
+        'form',
+        'contact'
       ];
 
-      const results: any = {};
-      
-      for (const contentType of commonContentTypes) {
+      const results: Record<string, string> = {};
+
+      for (const contentType of commonTypes) {
         try {
           const entry = stack.ContentType(contentType).Entry('blt211dac063fd6e948');
+          
           await new Promise((resolve, reject) => {
             entry.fetch()
-              .then(() => {
-                results[contentType] = '✅ Success';
-                resolve(null);
+              .then((data: any) => {
+                results[contentType] = `✅ Found! Entry has ${Object.keys(data.toJSON()).length} fields`;
+                resolve(data);
               })
               .catch((err: any) => {
-                const errorMessage = err?.message || err?.toString() || 'Unknown error';
-                console.log(`Error for ${contentType}:`, errorMessage);
-                
-                if (errorMessage.toLowerCase().includes('content type')) {
-                  results[contentType] = '❌ Content type not found';
-                } else if (errorMessage.toLowerCase().includes('entry')) {
-                  results[contentType] = '✅ Content type exists, entry not found';
-                } else if (errorMessage.toLowerCase().includes('422')) {
-                  results[contentType] = '❌ Content type not found (422 error)';
-                } else {
-                  results[contentType] = `❌ Error: ${errorMessage.substring(0, 50)}...`;
-                }
+                results[contentType] = `❌ Not found: ${err?.message || 'Unknown error'}`;
                 resolve(null);
               });
           });
         } catch (err: any) {
-          const errorMessage = err?.message || err?.toString() || 'Unknown error';
-          results[contentType] = `❌ Error: ${errorMessage.substring(0, 50)}...`;
+          results[contentType] = `❌ Error: ${err?.message || 'Unknown error'}`;
         }
       }
 
       setTestResults(results);
-      
     } catch (err: any) {
-      setError(err?.message || 'Unknown error occurred');
+      setError(err?.message || 'An error occurred while discovering content types');
     } finally {
       setLoading(false);
     }
@@ -83,6 +85,10 @@ export default function ContentTypeDiscovery() {
       const apiKey = process.env.NEXT_PUBLIC_CONTENTSTACK_API_KEY;
       const deliveryToken = process.env.NEXT_PUBLIC_CONTENTSTACK_DELIVERY_TOKEN;
       const environment = process.env.NEXT_PUBLIC_CONTENTSTACK_ENVIRONMENT || 'staging';
+
+      if (!apiKey || !deliveryToken) {
+        throw new Error('Missing Contentstack environment variables');
+      }
 
       const stack = contentstack.Stack({
         api_key: apiKey,
@@ -184,15 +190,22 @@ export default function ContentTypeDiscovery() {
         </div>
       )}
 
-      <div style={{ marginTop: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-        <h3>Next Steps</h3>
-        <ol>
-          <li>Look for content types marked with ✅</li>
-          <li>Click "Test This Content Type" to see if it works with your entry</li>
-          <li>Update the content type in <code>contentstackAdapter.ts</code></li>
-          <li>Try the test again at <code>/test-real-content</code></li>
-        </ol>
-      </div>
+      <button 
+        onClick={discoverContentTypes}
+        disabled={loading}
+        style={{ 
+          background: '#0070f3', 
+          color: 'white', 
+          border: 'none', 
+          padding: '1rem 2rem', 
+          borderRadius: '8px',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          fontSize: '1.1rem',
+          marginTop: '1rem'
+        }}
+      >
+        {loading ? 'Discovering...' : 'Start Content Type Discovery'}
+      </button>
     </div>
   );
 } 
