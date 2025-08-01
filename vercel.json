@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "functions": {
+    "api/flagPreview.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "CONTENTSTACK_API_KEY": "@contentstack_api_key",
+    "CONTENTSTACK_DELIVERY_TOKEN": "@contentstack_delivery_token",
+    "CONTENTSTACK_ENVIRONMENT": "@contentstack_environment"
+  }
+} 
