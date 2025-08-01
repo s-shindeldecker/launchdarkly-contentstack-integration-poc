@@ -6,6 +6,7 @@ Welcome to the comprehensive documentation for the LaunchDarkly Contentstack Int
 
 ### 🚀 Getting Started
 - **[Quick Start Guide](QUICK_START.md)** - Get up and running in 5 minutes
+- **[Setup Guide](SETUP.md)** - Complete local development setup
 - **[Installation Guide](INSTALLATION.md)** - Detailed setup instructions
 - **[Configuration Guide](CONFIGURATION.md)** - Environment and credential setup
 
@@ -26,6 +27,9 @@ Welcome to the comprehensive documentation for the LaunchDarkly Contentstack Int
 ### 🔧 Troubleshooting
 - **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Debug Tools](DEBUG_TOOLS.md)** - Available debugging utilities
+
+### 🔌 Integration
+- **[LaunchDarkly Integration Guide](LAUNCHDARKLY_INTEGRATION.md)** - How the integration works with LaunchDarkly
 
 ## 🎯 What This Integration Does
 
@@ -66,7 +70,7 @@ The LaunchDarkly Contentstack Integration enables you to:
 3. **Create a JSON flag** with content reference
 4. **Test the integration** using the provided test suite
 
-For detailed instructions, see the [Quick Start Guide](QUICK_START.md).
+For detailed instructions, see the [Quick Start Guide](QUICK_START.md) or [Setup Guide](SETUP.md).
 
 ## 📋 Prerequisites
 
