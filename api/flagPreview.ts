@@ -146,10 +146,12 @@ async function fetchContentstackContent(variation: CMSReference, config: Content
     
     // Auto-discover content type if not provided
     if (!contentType) {
-      contentType = await findContentTypeForEntry(variation.entryId, config);
-      if (!contentType) {
+      const discoveredType = await findContentTypeForEntry(variation.entryId, config);
+      if (!discoveredType) {
         throw new Error('Unable to resolve content type for entry ID');
       }
+      // Use the discovered type as a string for the API call
+      contentType = discoveredType;
     }
 
     const entryUrl = `${baseUrl}/content_types/${contentType}/entries/${variation.entryId}?environment=${variation.environment}`;
