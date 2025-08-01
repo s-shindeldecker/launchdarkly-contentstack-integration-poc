@@ -8,7 +8,7 @@ const TestContent = () => {
   const [userName, setUserName] = useState('Anonymous User');
   const [currentContext, setCurrentContext] = useState(createUserContext('anonymous-user'));
 
-  const { identify, flags, loading, error } = useLaunchDarkly();
+  const { identify, flags, loading, error, isConfigured } = useLaunchDarkly();
   const testFlag = useFeatureFlag('test-flag', false);
 
   const handleIdentify = () => {
@@ -21,8 +21,34 @@ const TestContent = () => {
     return <div>Loading LaunchDarkly...</div>;
   }
 
+  if (!isConfigured) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+        <h1>LaunchDarkly Integration Test</h1>
+        <div style={{ padding: '1rem', background: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '8px', color: '#721c24' }}>
+          <h3>⚠️ LaunchDarkly Not Configured</h3>
+          <p>LaunchDarkly is not configured for this environment. To test LaunchDarkly integration:</p>
+          <ol>
+            <li>Add <code>NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID</code> to your environment variables</li>
+            <li>Add <code>NEXT_PUBLIC_LAUNCHDARKLY_ENVIRONMENT</code> to your environment variables (optional, defaults to 'production')</li>
+            <li>Restart your development server</li>
+          </ol>
+          <p><strong>Note:</strong> This page will work without LaunchDarkly for testing other features.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+        <h1>LaunchDarkly Integration Test</h1>
+        <div style={{ padding: '1rem', background: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '8px', color: '#721c24' }}>
+          <h3>❌ LaunchDarkly Error</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
   }
 
   return (

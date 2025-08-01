@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { LDClient, LDContext, initialize } from 'launchdarkly-react-client-sdk';
-import { launchDarklyConfig, createAnonymousContext } from '../lib/launchdarkly';
+import { launchDarklyConfig, createAnonymousContext, isLaunchDarklyConfigured } from '../lib/launchdarkly';
 
 interface LaunchDarklyContextType {
   client: LDClient | null;
@@ -8,6 +8,7 @@ interface LaunchDarklyContextType {
   loading: boolean;
   error: string | null;
   identify: (context: LDContext) => void;
+  isConfigured: boolean;
 }
 
 const LaunchDarklyContext = createContext<LaunchDarklyContextType | undefined>(undefined);
@@ -35,8 +36,16 @@ export const LaunchDarklyProvider: React.FC<LaunchDarklyProviderProps> = ({
   const [error, setError] = useState<string | null>(null);
   const clientRef = useRef<LDClient | null>(null);
   const isInitializing = useRef(false);
+  const isConfigured = isLaunchDarklyConfigured();
 
   useEffect(() => {
+    // If LaunchDarkly is not configured, skip initialization
+    if (!isConfigured) {
+      setLoading(false);
+      setError('LaunchDarkly is not configured. Please add NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID to your environment variables.');
+      return;
+    }
+
     // Prevent multiple initializations
     if (isInitializing.current || clientRef.current) {
       return;
@@ -93,7 +102,7 @@ export const LaunchDarklyProvider: React.FC<LaunchDarklyProviderProps> = ({
       }
       isInitializing.current = false;
     };
-  }, []); // Remove userContext dependency to prevent re-initialization
+  }, [isConfigured]); // Add isConfigured to dependencies
 
   const identify = (context: LDContext) => {
     if (clientRef.current) {
@@ -111,6 +120,7 @@ export const LaunchDarklyProvider: React.FC<LaunchDarklyProviderProps> = ({
     loading,
     error,
     identify,
+    isConfigured,
   };
 
   return (

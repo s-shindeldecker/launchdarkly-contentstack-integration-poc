@@ -3,12 +3,8 @@ import { LDContext } from 'launchdarkly-react-client-sdk';
 const clientSideID = process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID;
 const environment = process.env.NEXT_PUBLIC_LAUNCHDARKLY_ENVIRONMENT || 'production';
 
-if (!clientSideID) {
-  throw new Error('LaunchDarkly client ID is not configured. Please add NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID to your .env.local file.');
-}
-
 export const launchDarklyConfig = {
-  clientSideID,
+  clientSideID: clientSideID || 'placeholder-client-id',
   context: {
     kind: 'user',
     key: 'anonymous-user',
@@ -29,4 +25,9 @@ export const createAnonymousContext = (): LDContext => ({
   kind: 'user',
   key: 'anonymous-user',
   name: 'Anonymous User',
-}); 
+});
+
+// Helper function to check if LaunchDarkly is properly configured
+export const isLaunchDarklyConfigured = (): boolean => {
+  return !!(process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID);
+}; 
