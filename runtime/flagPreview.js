@@ -2,47 +2,10 @@
  * Flag preview handler for LaunchDarkly Contentstack integration
  */
 
-import { CMSReference, PreviewContent } from '../types/cms';
-
-interface RuntimeAPIRequest {
-  context: {
-    config: {
-      apiKey: string;
-      deliveryToken: string;
-      environment: string;
-    };
-  };
-  body: {
-    variation: {
-      value: CMSReference;
-    };
-  };
-}
-
-interface RuntimeAPIResponse {
-  status: number;
-  body: any;
-}
-
-interface ContentstackEntry {
-  uid: string;
-  title?: string;
-  summary?: string;
-  description?: string;
-  content?: string;
-  image?: {
-    url?: string;
-    filename?: string;
-  };
-  [key: string]: any;
-}
-
-interface ContentstackResponse {
-  entry: ContentstackEntry;
-  [key: string]: any;
-}
-
-export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<RuntimeAPIResponse> {
+/**
+ * Fetches content from Contentstack and formats it for LaunchDarkly preview
+ */
+async function handleFlagPreview(req) {
   console.log('🎯 Flag preview request received:', {
     hasContext: !!req.context,
     hasConfig: !!req.context?.config,
@@ -88,7 +51,7 @@ export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<Runtime
     };
   }
 
-  const variation: CMSReference = req.body.variation.value;
+  const variation = req.body.variation.value;
 
   // Runtime validation: Check variation fields
   if (
@@ -154,7 +117,7 @@ export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<Runtime
 
   try {
     // Determine the API endpoint based on content type
-    let url: string;
+    let url;
     if (contentType === 'asset') {
       url = `https://cdn.contentstack.io/v3/assets/${entryId}?environment=${environment}`;
     } else {
@@ -190,11 +153,11 @@ export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<Runtime
       };
     }
 
-    const data: ContentstackResponse = await response.json();
+    const data = await response.json();
     console.log('✅ Content fetched successfully');
 
     // Extract content data
-    let contentData: ContentstackEntry;
+    let contentData;
     if (contentType === 'asset') {
       contentData = data.asset;
     } else {
@@ -213,7 +176,7 @@ export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<Runtime
     }
 
     // Format preview data for LaunchDarkly UI
-    const previewData: PreviewContent = {
+    const previewData = {
       title: contentData.title || contentData.filename || 'Untitled',
       summary: contentData.summary || contentData.description || '',
       imageUrl: contentData.image?.url,
@@ -247,4 +210,6 @@ export async function handleFlagPreview(req: RuntimeAPIRequest): Promise<Runtime
       }
     };
   }
-} 
+}
+
+module.exports = { handleFlagPreview }; 

@@ -5,6 +5,9 @@
   "main": "runtime-api.js",
   "scripts": {
     "test": "node test-integration.js",
+    "test:comprehensive": "node test/run-tests.js",
+    "test:flag-preview": "npx ts-node test/flagPreview.test.ts",
+    "test:content-type": "npx ts-node utils/test-contentTypeDiscovery-simple.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -22,19 +25,20 @@
   "author": "LaunchDarkly Partner Integration",
   "license": "MIT",
   "dependencies": {
+    "contentstack": "^3.0.0",
+    "dotenv": "^16.6.1",
+    "launchdarkly-react-client-sdk": "^3.0.0",
     "next": "^14.0.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "launchdarkly-react-client-sdk": "^3.0.0",
-    "contentstack": "^3.0.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "typescript": "^5.0.0",
     "eslint": "^8.0.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

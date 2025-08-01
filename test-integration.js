@@ -20,6 +20,14 @@ const testCases = [
       contentType: 'asset',
       preview: false
     }
+  },
+  {
+    name: 'Page Entry Test',
+    input: {
+      entryId: 'blt0f6ddaddb7222b8d',
+      contentType: 'page',
+      preview: false
+    }
   }
 ];
 

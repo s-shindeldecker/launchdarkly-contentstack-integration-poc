@@ -2,6 +2,18 @@
 
 Use Contentstack content entries as feature flag variations in LaunchDarkly. This integration allows you to dynamically serve different content based on user context and feature flags.
 
+## 📚 Documentation
+
+**📖 [Comprehensive Documentation](docs/README.md)** - Complete documentation with guides, examples, and troubleshooting.
+
+**Quick Links:**
+- **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 5 minutes
+- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup instructions
+- **[Usage Examples](docs/EXAMPLES.md)** - Real-world usage scenarios
+- **[API Reference](docs/API.md)** - Complete technical documentation
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions
+
 ## 🚀 Features
 
 - **Dynamic Content Delivery**: Serve different Contentstack entries based on LaunchDarkly flags
@@ -10,6 +22,9 @@ Use Contentstack content entries as feature flag variations in LaunchDarkly. Thi
 - **Preview Mode Support**: Access both published and draft content
 - **Asset Support**: Handle both content entries and assets
 - **Secure Credentials**: Per-environment credential storage
+- **Flag Preview**: See content previews directly in LaunchDarkly UI
+- **Content Type Discovery**: Automatically find correct content types
+- **Comprehensive Testing**: Full test suite with error handling
 
 ## 📋 Prerequisites
 
@@ -19,7 +34,7 @@ Use Contentstack content entries as feature flag variations in LaunchDarkly. Thi
 - Contentstack Delivery Token
 - Contentstack Environment name
 
-## 🔧 Installation
+## 🔧 Quick Installation
 
 ### 1. Install the Integration
 
@@ -41,20 +56,23 @@ Create a JSON flag with the following structure:
 
 ```json
 {
+  "cmsType": "contentstack",
   "entryId": "blt0f6ddaddb7222b8d",
-  "contentType": "entry",
-  "preview": false
+  "environment": "preview",
+  "contentType": "page"
 }
 ```
 
-## 🎯 Usage
+## 🎯 Quick Usage Examples
 
 ### Basic Content Variation
 
 ```json
 {
+  "cmsType": "contentstack",
   "entryId": "blt0f6ddaddb7222b8d",
-  "contentType": "entry"
+  "environment": "preview",
+  "contentType": "page"
 }
 ```
 
@@ -62,7 +80,9 @@ Create a JSON flag with the following structure:
 
 ```json
 {
+  "cmsType": "contentstack",
   "entryId": "blt211dac063fd6e948",
+  "environment": "preview",
   "contentType": "asset"
 }
 ```
@@ -71,19 +91,24 @@ Create a JSON flag with the following structure:
 
 ```json
 {
+  "cmsType": "contentstack",
   "entryId": "blt0f6ddaddb7222b8d",
-  "contentType": "entry",
+  "environment": "preview",
+  "contentType": "page",
   "preview": true
 }
 ```
 
-### User-Targeted Content
+## 🧪 Testing
 
-Set up targeting rules in LaunchDarkly based on user attributes:
+```bash
+# Run comprehensive test suite
+npm run test:comprehensive
 
-- **User Key**: Different content for different users
-- **User Name**: Personalized content based on user name
-- **Custom Attributes**: Target based on user properties
+# Run individual test components
+npm run test:flag-preview
+npm run test:content-type
+```
 
 ## 🔄 Runtime API
 
@@ -99,9 +124,10 @@ The integration provides a Runtime API that can be called from your application:
     "environment": "production"
   },
   "input": {
+    "cmsType": "contentstack",
     "entryId": "blt0f6ddaddb7222b8d",
-    "contentType": "entry",
-    "preview": false
+    "environment": "preview",
+    "contentType": "page"
   }
 }
 ```
@@ -112,13 +138,18 @@ The integration provides a Runtime API that can be called from your application:
 {
   "success": true,
   "content": {
-    "id": "blt0f6ddaddb7222b8d",
     "title": "Welcome Page",
-    "contentType": "entry",
-    "data": { /* full content data */ },
-    "url": "https://example.com/image.jpg",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "summary": "This is a welcome page with content...",
+    "imageUrl": "https://example.com/image.jpg",
+    "html": "<h1>Welcome</h1><p>Content here...</p>",
+    "structuredData": {
+      "title": "Welcome Page",
+      "content": "<h1>Welcome</h1><p>Content here...</p>",
+      "metadata": {
+        "author": "John Doe",
+        "publishedAt": "2024-01-01T00:00:00Z"
+      }
+    }
   }
 }
 ```
@@ -133,9 +164,10 @@ When creating a JSON flag, use the following schema:
 
 ```json
 {
+  "cmsType": "contentstack",
   "entryId": "blt0f6ddaddb7222b8d",
-  "contentType": "entry",
-  "preview": false
+  "environment": "preview",
+  "contentType": "page"
 }
 ```
 
@@ -258,7 +290,7 @@ The integration provides comprehensive logging:
 
 For issues and questions:
 
-1. Check the troubleshooting section above
+1. Check the [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 2. Review the debug tools in the application
 3. Contact LaunchDarkly support for integration issues
 4. Contact Contentstack support for API issues
