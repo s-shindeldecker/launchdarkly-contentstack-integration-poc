@@ -33,5 +33,27 @@
     "webhook": false,
     "runtimeApi": true,
     "flagPreview": true
+  },
+  "flagPreview": {
+    "variationSchema": {
+      "type": "object",
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "description": "Contentstack Entry ID"
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Content type ('entry' or 'asset')",
+          "default": "entry"
+        },
+        "preview": {
+          "type": "boolean",
+          "description": "Whether to fetch preview content",
+          "default": false
+        }
+      },
+      "required": ["entryId"]
+    }
   }
 } 

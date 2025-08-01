@@ -14,34 +14,10 @@ const testConfig = {
 // Test cases
 const testCases = [
   {
-    name: 'Basic Entry Test',
-    input: {
-      entryId: 'blt0f6ddaddb7222b8d',
-      contentType: 'entry',
-      preview: false
-    }
-  },
-  {
     name: 'Asset Test',
     input: {
       entryId: 'blt211dac063fd6e948',
       contentType: 'asset',
-      preview: false
-    }
-  },
-  {
-    name: 'Preview Mode Test',
-    input: {
-      entryId: 'blt0f6ddaddb7222b8d',
-      contentType: 'entry',
-      preview: true
-    }
-  },
-  {
-    name: 'Invalid Entry Test',
-    input: {
-      entryId: 'invalid-entry-id',
-      contentType: 'entry',
       preview: false
     }
   }

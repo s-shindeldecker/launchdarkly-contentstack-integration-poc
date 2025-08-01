@@ -100,6 +100,111 @@ async function fetchContentstackContent(params) {
 }
 
 /**
+ * Handles flag preview requests for LaunchDarkly UI
+ * @param {Object} params - Parameters from LaunchDarkly
+ * @param {Object} params.config - Integration configuration
+ * @param {Object} params.variation - Flag variation data
+ * @returns {Promise<Object>} Preview data for LaunchDarkly UI
+ */
+async function handleFlagPreview(params) {
+  const { config, variation } = params;
+  
+  console.log('🎯 Flag preview request received:', {
+    variation,
+    environment: config.environment
+  });
+
+  try {
+    // Validate required configuration
+    if (!config.apiKey || !config.deliveryToken || !config.environment) {
+      return {
+        success: false,
+        error: 'Missing required configuration: apiKey, deliveryToken, or environment'
+      };
+    }
+
+    // Extract content reference from variation
+    const { entryId, contentType = 'page', preview: previewMode = false } = variation;
+
+    if (!entryId) {
+      return {
+        success: false,
+        error: 'Missing entryId in variation'
+      };
+    }
+
+    // Determine the API endpoint based on content type
+    let url;
+    if (contentType === 'asset') {
+      url = `https://cdn.contentstack.io/v3/assets/${entryId}?environment=${config.environment}`;
+    } else {
+      url = `https://cdn.contentstack.io/v3/content_types/${contentType}/entries/${entryId}?environment=${config.environment}`;
+    }
+
+    // Add preview parameter if specified
+    if (previewMode) {
+      url += '&preview=true';
+    }
+
+    console.log('🌐 Fetching preview from:', url);
+
+    // Make the request to Contentstack
+    const response = await makeHttpRequest(url, {
+      'api_key': config.apiKey,
+      'access_token': config.deliveryToken,
+      'Content-Type': 'application/json'
+    });
+
+    // Extract content data
+    let contentData;
+    if (contentType === 'asset') {
+      contentData = response.asset;
+    } else {
+      contentData = response.entry;
+    }
+
+    if (!contentData) {
+      return {
+        success: false,
+        error: 'No content found in response'
+      };
+    }
+
+    // Format preview data for LaunchDarkly UI
+    const preview = {
+      title: contentData.title || contentData.filename || 'Untitled',
+      summary: contentData.summary || contentData.description || '',
+      imageUrl: contentData.image?.url,
+      contentType,
+      entryId: contentData.uid || entryId
+    };
+
+    // Add additional metadata for better preview
+    if (contentData.content) {
+      preview.summary = contentData.content.substring(0, 200) + (contentData.content.length > 200 ? '...' : '');
+    }
+
+    console.log('📄 Preview data formatted:', {
+      title: preview.title,
+      summaryLength: preview.summary.length,
+      hasImage: !!preview.imageUrl
+    });
+
+    return {
+      success: true,
+      preview
+    };
+
+  } catch (error) {
+    console.error('❌ Error in flag preview handler:', error.message);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
  * Makes an HTTP request with the given options
  * @param {string} url - The URL to request
  * @param {Object} headers - Request headers
@@ -151,6 +256,15 @@ async function handler(params) {
   console.log('🚀 LaunchDarkly Partner Integration called with params:', JSON.stringify(params, null, 2));
   
   try {
+    // Check if this is a flag preview request
+    if (params.variation) {
+      console.log('🎯 Flag preview request detected');
+      const result = await handleFlagPreview(params);
+      console.log('✅ Flag preview completed');
+      return result;
+    }
+
+    // Regular content fetching request
     const result = await fetchContentstackContent(params);
     console.log('✅ Integration completed successfully');
     return result;

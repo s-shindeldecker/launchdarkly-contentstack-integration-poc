@@ -123,6 +123,52 @@ The integration provides a Runtime API that can be called from your application:
 }
 ```
 
+## 🎯 Flag Preview
+
+The integration supports flag preview functionality, allowing you to see content previews directly in the LaunchDarkly UI when configuring flags.
+
+### Flag Preview Schema
+
+When creating a JSON flag, use the following schema:
+
+```json
+{
+  "entryId": "blt0f6ddaddb7222b8d",
+  "contentType": "entry",
+  "preview": false
+}
+```
+
+### Preview Data Format
+
+The integration returns formatted preview data for LaunchDarkly UI:
+
+```javascript
+{
+  "success": true,
+  "preview": {
+    "title": "Welcome Page",
+    "summary": "This is a welcome page with content...",
+    "imageUrl": "https://example.com/image.jpg",
+    "contentType": "entry",
+    "entryId": "blt0f6ddaddb7222b8d"
+  }
+}
+```
+
+### Preview Features
+
+- **Title**: Content title or filename
+- **Summary**: Content summary or truncated content
+- **Image**: Featured image URL if available
+- **Content Type**: Entry or asset type
+- **Entry ID**: Contentstack entry identifier
+
+### Preview Modes
+
+- **Published Content**: `"preview": false` (default)
+- **Draft Content**: `"preview": true` (requires preview mode access)
+
 ## 🛠️ Development
 
 ### Local Testing
