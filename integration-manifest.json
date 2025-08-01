@@ -1,0 +1,37 @@
+{
+  "id": "contentstack",
+  "name": "Contentstack",
+  "description": "Use Contentstack content entries as feature flag variations in LaunchDarkly.",
+  "icon": "https://assets.contentstack.io/favicon.ico",
+  "configurations": {
+    "scopes": ["environment"],
+    "fields": [
+      {
+        "key": "apiKey",
+        "type": "text",
+        "name": "API Key",
+        "description": "Your Contentstack Stack API Key.",
+        "required": true
+      },
+      {
+        "key": "deliveryToken",
+        "type": "text",
+        "name": "Delivery Token",
+        "description": "Token for accessing published content.",
+        "required": true
+      },
+      {
+        "key": "environment",
+        "type": "text",
+        "name": "Environment Name",
+        "description": "The environment in Contentstack to fetch content from (e.g. 'staging', 'production').",
+        "required": true
+      }
+    ]
+  },
+  "capabilities": {
+    "webhook": false,
+    "runtimeApi": true,
+    "flagPreview": true
+  }
+} 
