@@ -82,4 +82,7 @@ docs/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Demo app (separate project)
+demo-app/ 
