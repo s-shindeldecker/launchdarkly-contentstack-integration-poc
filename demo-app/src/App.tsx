@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LDContentFlagDemo from './LDContentFlagDemo';
 
 type CMSReference = {
   cmsType: 'contentstack';
@@ -24,6 +25,7 @@ type ContentstackConfig = {
 const PREVIEW_ENDPOINT = 'https://launchdarkly-contentstack-integrati-flax.vercel.app/api/flagPreview';
 
 export default function App() {
+  const [currentView, setCurrentView] = useState<'basic' | 'ld-editor'>('basic');
   const [variationJson, setVariationJson] = useState<string>(
     JSON.stringify({
       cmsType: 'contentstack',
@@ -81,17 +83,45 @@ export default function App() {
     }
   };
 
+  if (currentView === 'ld-editor') {
+    return <LDContentFlagDemo />;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">
-          🚀 LaunchDarkly + Contentstack Flag Preview Demo
-        </h1>
+        {/* Navigation */}
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-800">
+            🚀 LaunchDarkly + Contentstack Flag Preview Demo
+          </h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentView('basic')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                currentView === 'basic'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Basic Demo
+            </button>
+            <button
+              onClick={() => setCurrentView('ld-editor')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                currentView === 'ld-editor'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              LaunchDarkly Editor
+            </button>
+          </div>
+        </div>
         
-        {/* Configuration Mode Toggle */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <h2 className="text-lg font-semibold mb-3 text-gray-700">Configuration Mode</h2>
-          <div className="flex items-center gap-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3 text-gray-700">Configuration Mode</h2>
+          <div className="flex items-center gap-4 mb-4">
             <label className="flex items-center">
               <input
                 type="radio"
@@ -115,7 +145,7 @@ export default function App() {
           </div>
           
           {useLaunchDarklyConfig && (
-            <div className="mt-4 p-3 bg-yellow-50 rounded border">
+            <div className="p-4 bg-yellow-50 rounded border">
               <h3 className="font-semibold text-sm mb-2">LaunchDarkly Configuration</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <input
