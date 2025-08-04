@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LDContentFlagDemo from './LDContentFlagDemo';
+import ContentFlagDemo from './ContentFlagDemo';
 
 type CMSReference = {
   cmsType: 'contentstack';
@@ -25,7 +26,7 @@ type ContentstackConfig = {
 const PREVIEW_ENDPOINT = 'https://launchdarkly-contentstack-integrati-flax.vercel.app/api/flagPreview';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'basic' | 'ld-editor'>('basic');
+  const [currentView, setCurrentView] = useState<'basic' | 'ld-editor' | 'content-flag'>('basic');
   const [variationJson, setVariationJson] = useState<string>(
     JSON.stringify({
       cmsType: 'contentstack',
@@ -83,41 +84,74 @@ export default function App() {
     }
   };
 
+  // Shared navigation component
+  const Navigation = () => (
+    <div className="mb-6 flex items-center justify-between">
+      <h1 className="text-3xl font-bold text-gray-800">
+        🚀 LaunchDarkly + Contentstack Flag Preview Demo
+      </h1>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setCurrentView('basic')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            currentView === 'basic'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Basic Demo
+        </button>
+        <button
+          onClick={() => setCurrentView('ld-editor')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            currentView === 'ld-editor'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          LaunchDarkly Editor
+        </button>
+        <button
+          onClick={() => setCurrentView('content-flag')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            currentView === 'content-flag'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          Content Flag Demo
+        </button>
+      </div>
+    </div>
+  );
+
+  // Render different views
   if (currentView === 'ld-editor') {
-    return <LDContentFlagDemo />;
+    return (
+      <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <Navigation />
+          <LDContentFlagDemo />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentView === 'content-flag') {
+    return (
+      <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <Navigation />
+          <ContentFlagDemo />
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        {/* Navigation */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-800">
-            🚀 LaunchDarkly + Contentstack Flag Preview Demo
-          </h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentView('basic')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                currentView === 'basic'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Basic Demo
-            </button>
-            <button
-              onClick={() => setCurrentView('ld-editor')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                currentView === 'ld-editor'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              LaunchDarkly Editor
-            </button>
-          </div>
-        </div>
+        <Navigation />
         
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-3 text-gray-700">Configuration Mode</h2>
