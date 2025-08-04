@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 type PreviewContent = {
   title?: string;
@@ -16,42 +17,36 @@ export default function ContentFlagDemo() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Simulate LaunchDarkly flag evaluation
-  // In a real app, this would come from useFlags() hook
-  const simulateFlagEvaluation = () => {
-    // This simulates the 'content-config' flag from LaunchDarkly
-    // You can change this to test different variations
-    const flagVariations = [
-      {
-        cmsType: 'contentstack',
-        entryId: 'blt0f6ddaddb7222b8d',
-        environment: 'preview'
-      },
-      {
-        cmsType: 'contentstack',
-        entryId: 'blt211dac063fd6e948',
-        environment: 'preview',
-        contentType: 'asset'
-      }
-    ];
-
-    // Randomly select a variation (simulates LaunchDarkly targeting)
-    const randomIndex = Math.floor(Math.random() * flagVariations.length);
-    return flagVariations[randomIndex];
-  };
+  // Use real LaunchDarkly flags
+  const flags = useFlags();
+  const contentConfig = flags['content-config'];
 
   const fetchContent = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const cmsReference = simulateFlagEvaluation();
+      // Check if we have a valid CMSReference from LaunchDarkly
+      if (!contentConfig || typeof contentConfig !== 'object') {
+        setError('No valid content-config flag found in LaunchDarkly. Please create a JSON flag named "content-config" with CMSReference variations.');
+        setLoading(false);
+        return;
+      }
+
+      // Validate that it's a proper CMSReference
+      if (!contentConfig.cmsType || !contentConfig.entryId || !contentConfig.environment) {
+        setError('Invalid CMSReference in LaunchDarkly flag. Expected: { cmsType: "contentstack", entryId: "...", environment: "..." }');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🎯 Fetching content from LaunchDarkly flag:', contentConfig);
       
       const res = await fetch(PREVIEW_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          variation: { value: cmsReference }
+          variation: { value: contentConfig }
         })
       });
 
@@ -60,23 +55,33 @@ export default function ContentFlagDemo() {
       if (res.ok) {
         setContent(data.preview);
         setLastUpdated(new Date());
+        console.log('✅ Content loaded successfully:', data.preview);
       } else {
         setError(data.error || data.detail || 'Failed to fetch content');
+        console.error('❌ API Error:', data);
       }
     } catch (e: any) {
       setError(e.message);
+      console.error('💥 Network Error:', e);
     } finally {
       setLoading(false);
     }
   };
 
-  // Auto-refresh content every 30 seconds
+  // Auto-refresh content when flag changes or every 30 seconds
   useEffect(() => {
-    fetchContent();
+    if (contentConfig) {
+      fetchContent();
+    }
     
-    const interval = setInterval(fetchContent, 30000);
+    const interval = setInterval(() => {
+      if (contentConfig) {
+        fetchContent();
+      }
+    }, 30000);
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [contentConfig]); // Re-run when flag changes
 
   return (
     <div>
@@ -89,12 +94,29 @@ export default function ContentFlagDemo() {
           Changes in LaunchDarkly will automatically update the content below.
         </p>
         
+        {/* Flag Status */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <h3 className="font-semibold text-gray-700 mb-2">LaunchDarkly Flag Status</h3>
+          {contentConfig ? (
+            <div className="text-sm">
+              <p className="text-green-600">✅ Flag found: <code className="bg-green-100 px-1 rounded">content-config</code></p>
+              <p className="text-gray-600">Entry ID: {contentConfig.entryId}</p>
+              <p className="text-gray-600">Content Type: {contentConfig.contentType || 'auto-discover'}</p>
+            </div>
+          ) : (
+            <div className="text-sm">
+              <p className="text-red-600">❌ Flag not found: <code className="bg-red-100 px-1 rounded">content-config</code></p>
+              <p className="text-gray-600">Please create this flag in LaunchDarkly with JSON variations</p>
+            </div>
+          )}
+        </div>
+        
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={fetchContent}
-            disabled={loading}
+            disabled={loading || !contentConfig}
             className={`px-4 py-2 rounded-lg font-medium ${
-              loading 
+              loading || !contentConfig
                 ? 'bg-gray-400 cursor-not-allowed' 
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
             }`}
@@ -204,12 +226,13 @@ export default function ContentFlagDemo() {
           </div>
         )}
         
-        {!content && !loading && !error && (
+        {!content && !loading && !error && !contentConfig && (
           <div className="p-8 text-center text-gray-500">
             <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p>No content available from LaunchDarkly</p>
+            <p>No LaunchDarkly flag found</p>
+            <p className="text-sm">Create a JSON flag named "content-config" in LaunchDarkly</p>
           </div>
         )}
       </div>
@@ -219,7 +242,7 @@ export default function ContentFlagDemo() {
         <h3 className="font-semibold text-blue-800 mb-2">How to Test</h3>
         <ol className="text-sm text-blue-700 space-y-1">
           <li>1. Create a JSON flag named <code className="bg-blue-100 px-1 rounded">content-config</code> in LaunchDarkly</li>
-          <li>2. Add CMSReference variations to the flag</li>
+          <li>2. Add CMSReference variations like: <code className="bg-blue-100 px-1 rounded">{"{ \"cmsType\": \"contentstack\", \"entryId\": \"blt0f6ddaddb7222b8d\", \"environment\": \"preview\" }"}</code></li>
           <li>3. Target different users/environments</li>
           <li>4. Watch the content change automatically on this page</li>
           <li>5. Click "Refresh Content" to manually trigger updates</li>
