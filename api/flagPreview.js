@@ -211,12 +211,20 @@ async function fetchContentstackContent(variation, config) {
     access_token: config.deliveryToken
   };
 
+  // Extract preview setting
+  const preview = variation.preview || false;
+  console.log('🔍 Preview mode:', preview ? 'enabled' : 'disabled');
+
   // Determine if this is an asset or entry
   const isAsset = variation.contentType === 'asset';
   
   if (isAsset) {
     // Fetch asset
-    const assetUrl = `${baseUrl}/assets/${variation.entryId}?environment=${variation.environment}`;
+    let assetUrl = `${baseUrl}/assets/${variation.entryId}?environment=${variation.environment}`;
+    // Add preview parameter for assets if specified
+    if (preview) {
+      assetUrl += '&preview=true';
+    }
     const response = await fetch(assetUrl, { headers });
     
     if (!response.ok) {
@@ -257,7 +265,11 @@ async function fetchContentstackContent(variation, config) {
       apiContentType = contentType;
     }
 
-    const entryUrl = `${baseUrl}/content_types/${apiContentType}/entries/${variation.entryId}?environment=${variation.environment}`;
+    let entryUrl = `${baseUrl}/content_types/${apiContentType}/entries/${variation.entryId}?environment=${variation.environment}`;
+    // Add preview parameter if specified
+    if (preview) {
+      entryUrl += '&preview=true';
+    }
     const response = await fetch(entryUrl, { headers });
     
     if (!response.ok) {
