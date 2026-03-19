@@ -68,20 +68,11 @@ export default function ContentFlagDemo() {
     }
   };
 
-  // Auto-refresh content when flag changes or every 30 seconds
   useEffect(() => {
     if (contentConfig) {
       fetchContent();
     }
-    
-    const interval = setInterval(() => {
-      if (contentConfig) {
-        fetchContent();
-      }
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [contentConfig]); // Re-run when flag changes
+  }, [contentConfig]);
 
   return (
     <div>
