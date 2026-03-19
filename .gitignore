@@ -18,6 +18,10 @@ dist/
 *.swp
 *.swo
 
+# Environment variables
+.env.local
+.env*.local
+
 # OS
 .DS_Store
 Thumbs.db

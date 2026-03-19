@@ -207,14 +207,19 @@ The integration returns formatted preview data for LaunchDarkly UI:
 
 1. Clone this repository
 2. Install dependencies: `npm install`
-3. Set up environment variables:
+3. Set up environment variables in `.env.local` at the project root:
    ```
    CONTENTSTACK_API_KEY=your_api_key
    CONTENTSTACK_DELIVERY_TOKEN=your_delivery_token
    CONTENTSTACK_ENVIRONMENT=preview
+   NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID=your_client_side_id
    ```
 4. Run the development server: `npm run dev`
 5. Test the integration at `/content-json-flags`
+
+### Demo App
+
+A standalone React demo app is included in `demo-app/`. It provides a visual UI for testing the integration end-to-end, including live LaunchDarkly flag evaluation. See [`demo-app/README.md`](demo-app/README.md) for setup instructions.
 
 ### Testing Different Scenarios
 

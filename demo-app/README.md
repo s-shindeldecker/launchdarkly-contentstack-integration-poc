@@ -18,43 +18,60 @@ A React + TypeScript demo app for testing the LaunchDarkly Contentstack flag pre
    npm install
    ```
 
-2. **Start the development server:**
+2. **Create a `.env.local` file** in the `demo-app/` directory with your LaunchDarkly client-side ID:
+   ```
+   VITE_LAUNCHDARKLY_CLIENT_ID=<your-launchdarkly-client-side-id>
+   ```
+   You can find your client-side ID in the LaunchDarkly dashboard under **Account settings > Projects > your project > your environment**.
+
+   > **Note:** This file is gitignored and must be created locally. Without it, the "Content Flag Demo" tab will not be able to connect to LaunchDarkly.
+
+3. **Start the development server:**
    ```bash
    npm run dev
    ```
 
-3. **Open your browser** to `http://localhost:3001`
+4. **Open your browser** to the URL shown in the terminal (typically `http://localhost:5173`).
 
-## Usage
+## Demo Tabs
 
-### Testing Your API
+The app has three tabs, each demonstrating the integration differently:
 
-The demo app is pre-configured to test your Vercel deployment at:
-```
-https://launchdarkly-contentstack-integrati-flax.vercel.app/api/flagPreview
-```
+### Basic Demo
+A raw JSON editor where you can paste any CMSReference JSON and hit "Load Content Preview." Includes quick-test buttons for entries, assets, and error cases. Does **not** require a LaunchDarkly connection.
 
-### Quick Test Scenarios
+### LaunchDarkly Editor
+Simulates the LaunchDarkly flag targeting UI with hardcoded sample variations. Click any variation to preview the resolved Contentstack content. Does **not** require a LaunchDarkly connection.
+
+### Content Flag Demo
+The end-to-end demo. Uses the **live LaunchDarkly React SDK** to read a JSON flag named `content-config` and renders the corresponding Contentstack content. This tab **requires**:
+- A valid `VITE_LAUNCHDARKLY_CLIENT_ID` in `.env.local`
+- A JSON feature flag in LaunchDarkly with key `content-config`
+- Flag variations structured as CMSReference objects, e.g.:
+  ```json
+  {
+    "cmsType": "contentstack",
+    "entryId": "bltbba25137ffbcb167",
+    "environment": "preview",
+    "contentType": "asset"
+  }
+  ```
+Content updates automatically when the flag value changes in LaunchDarkly.
+
+## API Endpoint
+
+The demo connects to your Vercel deployment's flag preview API:
+
+- **URL:** `https://launchdarkly-contentstack-integrati-flax.vercel.app/api/flagPreview`
+- **Method:** POST
+- **Headers:** `Content-Type: application/json`
+- **Body:** `{ "variation": { "value": <CMSReference> } }`
+
+### Quick Test Scenarios (Basic Demo tab)
 
 - **Test Entry** - Tests a content entry with auto-discovery
 - **Test Asset** - Tests an asset with explicit content type
 - **Test Error** - Tests error handling with invalid entry ID
-
-### Custom Testing
-
-1. **Edit the JSON** in the textarea
-2. **Click "Load Content Preview"**
-3. **View the results** in the preview panel
-
-### Example CMSReference
-
-```json
-{
-  "cmsType": "contentstack",
-  "entryId": "blt0f6ddaddb7222b8d",
-  "environment": "preview"
-}
-```
 
 ## API Endpoint
 

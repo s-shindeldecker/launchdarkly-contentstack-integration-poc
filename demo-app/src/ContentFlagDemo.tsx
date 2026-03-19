@@ -19,7 +19,7 @@ export default function ContentFlagDemo() {
 
   // Use real LaunchDarkly flags
   const flags = useFlags();
-  const contentConfig = flags['content-config'];
+  const contentConfig = flags['contentConfig'];
 
   const fetchContent = async () => {
     setLoading(true);
